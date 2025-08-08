@@ -87,8 +87,100 @@ try:
 
     # Bracket pairing logic
     while forward <= backward:
-        # ... (keep all your existing loop logic exactly the same)
-        forward += 1  # just a placeholder so loop won't hang
+       if(df.loc[forward, 'Fold']  == '(' and df.loc[backward, 'Fold'] == ')' and forward > 2 and backward < len(df)-2):
+        df.loc[forward, 'Fold_Letter'] = 'M'
+        df.loc[backward, 'Fold_Letter'] = 'M'
+        df.loc[forward, 'CrossPlusOne'] = df['Base'][backward + 1] if backward + 1 < len(df) else 'N'
+        df.loc[forward, 'CrossMinusOne'] = df['Base'][backward - 1] if backward - 1 >= 0 else 'N'
+        df.loc[forward, 'CrossPlusTwo'] = df['Base'][backward + 2] if backward + 2 < len(df) else 'N'
+        df.loc[forward, 'CrossMinusTwo'] = df['Base'][backward - 2] if backward - 2 >= 0 else 'N'
+        df.loc[forward, 'CrossStrand'] = df['Base'][backward]
+        df.loc[backward, 'CrossPlusOne'] = df['Base'][forward + 1] if forward + 1 < len(df) else 'N'
+        df.loc[backward, 'CrossMinusOne'] = df['Base'][forward - 1] if forward - 1 >= 0 else 'N'
+        df.loc[backward, 'CrossPlusTwo'] = df['Base'][forward + 2] if forward + 2 < len(df) else 'N'
+        df.loc[backward, 'CrossMinusTwo'] = df['Base'][forward - 2] if forward - 2 >= 0 else 'N'
+        df.loc[backward, 'CrossStrand'] = df['Base'][forward]
+        df.loc[forward, 'CrossPlusThree'] = df['Base'][backward + 3] if backward + 3 < len(df) else 'N'
+        df.loc[forward, 'CrossMinusThree'] = df['Base'][backward - 3] if backward - 3 >= 0 else 'N'
+        df.loc[backward, 'CrossPlusThree'] = df['Base'][forward + 3] if forward + 3 < len(df) else 'N'
+        df.loc[backward, 'CrossMinusThree'] = df['Base'][forward - 3] if forward - 3 >= 0 else 'N'
+        forward += 1
+        backward -=1
+      elif(df.loc[forward, 'Fold'] == '.' and df.loc[backward, 'Fold'] == ')'):
+        df.loc[forward, 'CrossPlusOne'] = df['Base'][backward + 1] if backward + 1 < len(df) else 'N'
+        df.loc[forward, 'CrossMinusOne'] = df['Base'][backward] if backward - 1 >= 0 else 'N'
+        df.loc[forward, 'CrossPlusTwo'] = df['Base'][backward + 2] if backward + 2 < len(df) else 'N'
+        df.loc[forward, 'CrossMinusTwo'] = df['Base'][backward - 1] if backward - 2 >= 0 else 'N'
+        df.loc[forward, 'CrossStrand'] = 'N'
+        df.loc[backward, 'CrossPlusOne'] = df['Base'][forward + 1] if forward + 1 < len(df) else 'N'
+        df.loc[backward, 'CrossMinusOne'] = df['Base'][forward - 1] if forward - 1 >= 0 else 'N'
+        df.loc[backward, 'CrossPlusTwo'] = df['Base'][forward + 2] if forward + 2 < len(df) else 'N'
+        df.loc[backward, 'CrossMinusTwo'] = df['Base'][forward - 2] if forward - 2 >= 0 else 'N'
+        df.loc[backward, 'CrossPlusThree'] = df['Base'][forward + 3] if forward + 3 < len(df) else 'N'
+        df.loc[backward, 'CrossMinusThree'] = df['Base'][forward - 3] if forward - 3 >= 0 else 'N'
+        df.loc[forward, 'CrossPlusThree'] = df['Base'][backward + 3] if backward + 3 < len(df) else 'N'
+        df.loc[forward, 'CrossMinusThree'] = df['Base'][backward - 3] if backward - 3 >= 0 else 'N'
+        forward += 1
+        df.loc[forward, 'Fold_Letter'] = 'A'
+      elif(df.loc[forward, 'Fold'] == '(' and df.loc[backward, 'Fold'] == '.'):
+        df.loc[forward, 'CrossPlusOne'] = df['Base'][backward + 1] if backward + 1 < len(df) else 'N'
+        df.loc[forward, 'CrossMinusOne'] = df['Base'][backward] if backward - 1 >= 0 else 'N'
+        df.loc[forward, 'CrossPlusTwo'] = df['Base'][backward + 2] if backward + 2 < len(df) else 'N'
+        df.loc[forward, 'CrossMinusTwo'] = df['Base'][backward - 1] if backward - 2 >= 0 else 'N'
+        df.loc[forward, 'CrossPlusThree'] = df['Base'][backward + 3] if backward + 3 < len(df) else 'N'
+        df.loc[forward, 'CrossMinusThree'] = df['Base'][backward - 3] if backward - 3 >= 0 else 'N'
+        df.loc[backward, 'CrossPlusOne'] = df['Base'][forward + 1] if forward + 1 < len(df) else 'N'
+        df.loc[backward, 'CrossMinusOne'] = df['Base'][forward - 1] if forward - 1 >= 0 else 'N'
+        df.loc[backward, 'CrossPlusTwo'] = df['Base'][forward + 2] if forward + 2 < len(df) else 'N'
+        df.loc[backward, 'CrossMinusTwo'] = df['Base'][forward - 2] if forward - 2 >= 0 else 'N'
+        df.loc[backward, 'CrossStrand'] = 'N'
+        df.loc[backward, 'CrossPlusThree'] = df['Base'][forward + 3] if forward + 3 < len(df) else 'N'
+        df.loc[backward, 'CrossMinusThree'] = df['Base'][forward - 3] if forward - 3 >= 0 else 'N'
+        backward -= 1
+        df.loc[backward, 'Fold_Letter'] = 'A'
+      elif(df.loc[forward, 'Fold'] == '.' and df.loc[backward, 'Fold'] == '.'):
+        if forward > last_open_bracket and backward < first_closed_bracket:
+            df.loc[forward, 'CrossPlusOne'] = 'N'
+            df.loc[forward, 'CrossMinusOne'] = 'N'
+            df.loc[forward, 'CrossPlusTwo'] = 'N'
+            df.loc[forward, 'CrossMinusTwo'] = 'N'
+            df.loc[forward, 'CrossStrand'] = 'N'
+            df.loc[backward, 'CrossPlusOne'] = 'N'
+            df.loc[backward, 'CrossMinusOne'] = 'N'
+            df.loc[backward, 'CrossPlusTwo'] = 'N'
+            df.loc[backward, 'CrossMinusTwo'] = 'N'
+            df.loc[backward, 'CrossStrand'] = 'N'
+            df.loc[backward, 'CrossPlusThree'] = 'N'
+            df.loc[forward, 'CrossMinusThree'] = 'N'
+            df.loc[backward, 'CrossMinusThree'] = 'N'
+            df.loc[forward, 'CrossPlusThree'] = 'N'
+            forward += 1
+            backward -=1
+            df.loc[forward, 'Fold_Letter'] = 'L'
+            df.loc[backward, 'Fold_Letter'] = 'L'
+        else:
+            df.loc[forward, 'CrossPlusOne'] = df['Base'][backward + 1] if backward + 1 < len(df) else 'N'
+            df.loc[forward, 'CrossMinusOne'] = df['Base'][backward - 1] if backward - 1 >= 0 else 'N'
+            df.loc[forward, 'CrossPlusTwo'] = df['Base'][backward + 2] if backward + 2 < len(df) else 'N'
+            df.loc[forward, 'CrossMinusTwo'] = df['Base'][backward - 2] if backward - 2 >= 0 else 'N'
+            df.loc[forward, 'CrossStrand'] = df['Base'][backward]
+            df.loc[backward, 'CrossPlusOne'] = df['Base'][forward + 1] if forward + 1 < len(df) else 'N'
+            df.loc[backward, 'CrossMinusOne'] = df['Base'][forward - 1] if forward - 1 >= 0 else 'N'
+            df.loc[backward, 'CrossPlusTwo'] = df['Base'][forward + 2] if forward + 2 < len(df) else 'N'
+            df.loc[backward, 'CrossMinusTwo'] = df['Base'][forward - 2] if forward - 2 >= 0 else 'N'
+            df.loc[backward, 'CrossStrand'] = df['Base'][forward]
+            df.loc[backward, 'CrossPlusThree'] = df['Base'][forward + 3] if forward + 3 < len(df) else 'N'
+            df.loc[backward, 'CrossMinusThree'] = df['Base'][forward - 3] if forward - 3 >= 0 else 'N'
+            df.loc[forward, 'CrossPlusThree'] = df['Base'][backward + 3] if backward + 3 < len(df) else 'N'
+            df.loc[forward, 'CrossMinusThree'] = df['Base'][backward - 3] if backward - 3 >= 0 else 'N'
+        forward += 1
+        backward -= 1
+        df.loc[forward, 'Fold_Letter'] = 'S'
+        df.loc[backward, 'Fold_Letter'] = 'S'
+      else:
+        # Handle cases where none of the above conditions are met, to avoid infinite loops
+        forward += 1
+        backward -= 1
 
     # Drop unnecessary columns
     df.drop(columns=['Unwanted', 'Index', 'Prev', 'Next', 'Pair', 'ID', 'Fold'], inplace=True)
@@ -104,3 +196,4 @@ except Exception as e:
     print("-"*60)
     traceback.print_exc()
     print("="*60)
+
