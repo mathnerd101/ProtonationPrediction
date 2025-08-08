@@ -1,0 +1,13 @@
+# Core dependencies
+pip>=23.2
+setuptools>=68.0
+wheel>=0.41
+
+# AutoGluon (tabular only) pinned for stability
+autogluon.tabular==1.1.0
+
+# Optional: Pin common heavy deps to avoid incompatible upgrades
+pandas==2.1.4
+numpy==1.26.4
+scikit-learn==1.3.2
+lightgbm==4.1.0
