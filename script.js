@@ -1,4 +1,3 @@
-
 // Theme toggle functionality
 const body = document.body;
 const toggleBtn = document.getElementById('theme-toggle-btn');
@@ -27,18 +26,6 @@ if (toggleBtn) {
   toggleBtn.addEventListener('click', toggleTheme);
 }
 
-// Optional: Listen for system theme changes
-if (window.matchMedia) {
-  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-
-  // Set initial theme based on system preference if no saved preference
-  if (!localStorage.getItem('theme')) {
-    const systemTheme = mediaQuery.matches ? 'dark' : 'light';
-    body.setAttribute('data-theme', systemTheme);
-    updateToggleIcon(systemTheme);
-  }
-}
-
 // Pipeline processing functionality
 const processBtn = document.getElementById('process-btn');
 const finalOutput = document.getElementById('final-output');
@@ -47,7 +34,7 @@ const dotFileInput = document.getElementById('dot-file');
 const ctStatus = document.getElementById('ct-status');
 const dotStatus = document.getElementById('dot-status');
 
-// File upload handlers with null checks
+// File upload handlers
 if (ctFileInput) {
   ctFileInput.addEventListener('change', handleFileUpload);
 }
@@ -60,10 +47,7 @@ async function handleFileUpload(event) {
   const isCtFile = event.target.id === 'ct-file';
   const statusElement = isCtFile ? ctStatus : dotStatus;
 
-  if (!statusElement) {
-    console.error('Status element not found');
-    return;
-  }
+  if (!statusElement) return;
 
   if (!file) {
     statusElement.textContent = '';
@@ -71,7 +55,6 @@ async function handleFileUpload(event) {
     return;
   }
 
-  // Validate file extension
   const expectedExtension = isCtFile ? '.ct' : '.dot';
   if (!file.name.toLowerCase().endsWith(expectedExtension)) {
     statusElement.textContent = `Invalid file type. Expected ${expectedExtension}`;
@@ -80,7 +63,6 @@ async function handleFileUpload(event) {
     return;
   }
 
-  // Upload file
   const formData = new FormData();
   formData.append('file', file);
   formData.append('type', isCtFile ? 'ct' : 'dot');
@@ -109,16 +91,11 @@ async function handleFileUpload(event) {
 }
 
 async function runPipeline() {
-
-  // Disable button and show loading
   processBtn.disabled = true;
   processBtn.textContent = 'Processing...';
-
-  // Clear previous results
   clearResults();
 
   try {
-    // Call the Python pipeline
     const response = await fetch('/run-pipeline', {
       method: 'POST',
       headers: {
@@ -132,14 +109,10 @@ async function runPipeline() {
     }
 
     const data = await response.json();
-
-    // Update step results (only showing steps 3 and 4, renumbered as 1 and 2)
     document.getElementById('step3-result').textContent = data.step3 || 'Processing...';
     await sleep(300);
-
     document.getElementById('step4-result').textContent = data.step4 || 'Processing...';
 
-    // Display final result
     if (data.result) {
       finalOutput.textContent = data.result;
     } else if (data.error) {
@@ -150,7 +123,6 @@ async function runPipeline() {
     console.error('Pipeline error:', error);
     finalOutput.textContent = `Error: ${error.message}`;
   } finally {
-    // Re-enable button
     processBtn.disabled = false;
     processBtn.textContent = 'Process Through Pipeline';
   }
@@ -166,7 +138,6 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// Add event listener to process button with null check
 if (processBtn) {
   processBtn.addEventListener('click', runPipeline);
 }
