@@ -177,7 +177,7 @@ try:
                 backward -= 1
                 df.loc[forward, 'Fold_Letter'] = 'S'
                 df.loc[backward, 'Fold_Letter'] = 'S'
-          else:
+        else:
         # Handle cases where none of the above conditions are met, to avoid infinite loops
             forward += 1
             backward -= 1
@@ -196,6 +196,7 @@ except Exception as e:
     print("-"*60)
     traceback.print_exc()
     print("="*60)
+
 
 
 
