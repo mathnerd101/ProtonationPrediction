@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, send_from_directory
+import Flask, request, jsonify, send_from_directory
 import subprocess
 import os
 from werkzeug.utils import secure_filename
@@ -64,5 +64,6 @@ def run_pipeline():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000, debug=True)
+
 
 
