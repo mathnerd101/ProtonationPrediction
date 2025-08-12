@@ -129,8 +129,9 @@ async function runPipeline() {
 }
 
 function clearResults() {
-  document.getElementById('step3-result').textContent = '';
-  document.getElementById('step4-result').textContent = '';
+  document.getElementById('step3-result').textContent = data.step3 || 'Processing...';
+  document.getElementById('step4-result').textContent = data.step4 || 'Processing...';
+  finalOutput.textContent = data.result;
   finalOutput.textContent = '';
 }
 
@@ -141,3 +142,4 @@ function sleep(ms) {
 if (processBtn) {
   processBtn.addEventListener('click', runPipeline);
 }
+
