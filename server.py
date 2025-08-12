@@ -62,7 +62,7 @@ def run_pipeline():
     except Exception as e:
         return jsonify({'error': f'Pipeline error: {str(e)}'}), 500
 
-    gunicorn --bind 0.0.0.0:10000 app:app
+
 
 
 
