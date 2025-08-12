@@ -18,7 +18,7 @@ predictions = {}
 
 # Predict using each individual model folder
 for model_name in model_names:
-    predictor = TabularPredictor.load(model_name)
+    predictor = TabularPredictor.load("NeuralNetTorch_r79_BAG_L1")
     raw_preds = predictor.predict(df)
     binary_preds = (raw_preds == 1).astype(int)  # Adjust if positive class is not 1
     predictions[model_name] = binary_preds
@@ -40,3 +40,4 @@ final_df = preds_df[["ID"] + model_names + ["Probability", "Prediction"]]
 
 # Save to CSV
 final_df.to_csv("predictions.csv", index=False)
+
