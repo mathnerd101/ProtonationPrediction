@@ -62,8 +62,8 @@ def run_pipeline():
     except Exception as e:
         return jsonify({'error': f'Pipeline error: {str(e)}'}), 500
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=False)
+    gunicorn --bind 0.0.0.0:10000 app:app
+
 
 
 
