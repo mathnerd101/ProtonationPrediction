@@ -93,7 +93,8 @@ async function handleFileUpload(event) {
 async function runPipeline() {
   processBtn.disabled = true;
   processBtn.textContent = 'Processing...';
-  clearResults();
+  const data = await response.json();
+  clearResults(data);
 
   try {
     const response = await fetch('/run-pipeline', {
@@ -108,7 +109,7 @@ async function runPipeline() {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const data = await response.json();
+    
     document.getElementById('step3-result').textContent = data.step3 || 'Processing...';
     await sleep(300);
     document.getElementById('step4-result').textContent = data.step4 || 'Processing...';
@@ -128,7 +129,7 @@ async function runPipeline() {
   }
 }
 
-function clearResults() {
+function clearResults(data) {
   document.getElementById('step3-result').textContent = data.step3 || 'Processing...';
   document.getElementById('step4-result').textContent = data.step4 || 'Processing...';
   finalOutput.textContent = data.result;
@@ -142,4 +143,5 @@ function sleep(ms) {
 if (processBtn) {
   processBtn.addEventListener('click', runPipeline);
 }
+
 
