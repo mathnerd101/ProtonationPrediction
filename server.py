@@ -60,7 +60,10 @@ def run_pipeline():
     except subprocess.TimeoutExpired:
         return jsonify({'error': 'Pipeline timeout - process took too long'}), 500
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return jsonify({'error': f'Pipeline error: {str(e)}'}), 500
+
 
 
 
