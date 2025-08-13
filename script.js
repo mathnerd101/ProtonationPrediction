@@ -96,7 +96,7 @@ async function runPipeline() {
 
 
   try {
-    const response = await fetch('/runPipeline', {
+    const response = await fetch('/run-pipeline', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -144,6 +144,7 @@ function sleep(ms) {
 if (processBtn) {
   processBtn.addEventListener('click', runPipeline);
 }
+
 
 
 
