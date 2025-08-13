@@ -94,7 +94,6 @@ async function runPipeline() {
   processBtn.disabled = true;
   processBtn.textContent = 'Processing...';
 
-
   try {
     const response = await fetch('/run-pipeline', {
       method: 'POST',
@@ -105,7 +104,9 @@ async function runPipeline() {
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      // Get more detailed error message if available
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
     }
     const data = await response.json();
 
@@ -124,6 +125,11 @@ async function runPipeline() {
   } catch (error) {
     console.error('Pipeline error:', error);
     finalOutput.textContent = `Error: ${error.message}`;
+    
+    // Additional error logging
+    if (error.response) {
+      error.response.text().then(text => console.error('Server response:', text));
+    }
   } finally {
     processBtn.disabled = false;
     processBtn.textContent = 'Process Through Pipeline';
@@ -144,6 +150,7 @@ function sleep(ms) {
 if (processBtn) {
   processBtn.addEventListener('click', runPipeline);
 }
+
 
 
 
