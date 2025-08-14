@@ -40,59 +40,46 @@ def upload_file():
 def run_pipeline():
     try:
         # 1. Verify required files exist
-        required_files = ['process3.py', 'process4.py']
-        for f in required_files:
-            if not os.path.exists(f):
-                return jsonify({'error': f'Missing required file: {f}'}), 400
+        if not os.path.exists('test.ct') or not os.path.exists('test.dot'):
+            return jsonify({'error': 'Missing CT or DOT file'}), 400
 
-        # 2. Run process3.py with enhanced error handling
-        try:
-            result3 = subprocess.run(
-                ["python3", os.path.abspath("process3.py")],
-                capture_output=True,
-                text=True,
-                timeout=60
-            )
-            if result3.returncode != 0:
-                return jsonify({
-                    'error': f'Process3 failed: {result3.stderr}',
-                    'step3': f'Failed: {result3.stderr[:200]}'
-                }), 500
-                
-            step3_result = "CSV processing completed successfully"
-        except subprocess.TimeoutExpired:
-            return jsonify({'error': 'Process3 timed out after 60 seconds'}), 500
+        # 2. Run process3.py with the uploaded files
+        result3 = subprocess.run(
+            ["python3", "process3.py", "test.ct", "test.dot"],
+            capture_output=True,
+            text=True
+        )
+        
+        if result3.returncode != 0:
+            return jsonify({
+                'error': f'Process3 failed: {result3.stderr}',
+                'step3': f'Failed: {result3.stderr[:200]}'
+            }), 500
+            
+        step3_result = "CT and DOT processing completed"
 
-        # 3. Run process4.py with enhanced error handling
-        try:
-            result4 = subprocess.run(
-                ["python3", os.path.abspath("process4.py")],
-                capture_output=True,
-                text=True,
-                timeout=60
-            )
-            if result4.returncode != 0:
-                return jsonify({
-                    'error': f'Process4 failed: {result4.stderr}',
-                    'step4': f'Failed: {result4.stderr[:200]}'
-                }), 500
-                
-            step4_result = "Model prediction completed successfully"
-            final_result = result4.stdout.strip() or "No output from process4"
-        except subprocess.TimeoutExpired:
-            return jsonify({'error': 'Process4 timed out after 60 seconds'}), 500
-
-        # 4. Successful response
+        # 3. Run process4.py
+        result4 = subprocess.run(
+            ["python3", "process4.py"],
+            capture_output=True,
+            text=True
+        )
+        
+        if result4.returncode != 0:
+            return jsonify({
+                'error': f'Process4 failed: {result4.stderr}',
+                'step4': f'Failed: {result4.stderr[:200]}'
+            }), 500
+            
         return jsonify({
             'step3': step3_result,
-            'step4': step4_result,
-            'result': final_result
+            'step4': "Prediction completed",
+            'result': result4.stdout.strip()
         })
 
     except Exception as e:
-        import traceback
-        traceback.print_exc()
-        return jsonify({'error': f'Unexpected pipeline error: {str(e)}'}), 500
+        return jsonify({'error': f'Pipeline error: {str(e)}'}), 500
+
 
 
 
