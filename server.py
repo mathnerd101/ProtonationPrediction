@@ -70,11 +70,7 @@ def run_pipeline():
 
         # Run process4.py
         process4_path = os.path.abspath('process4.py')
-         result4 = subprocess.run(
-            ["python3", "process4.py"],
-            capture_output=True,
-            text=True
-        )
+        result4 = subprocess.run(["python3", "process4.py"], capture_output=True, text=True)
         
         return jsonify({
             'status': 'success',
@@ -89,6 +85,7 @@ def run_pipeline():
             'error': 'Unexpected pipeline error',
             'details': str(e)
         }), 500
+
 
 
 
