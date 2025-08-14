@@ -108,47 +108,63 @@ function displayResult(data) {
     }
 }
 async function runPipeline() {
-  processBtn.disabled = true;
-  processBtn.textContent = 'Processing...';
-  finalOutput.textContent = '';
-
+  const processBtn = document.getElementById('process-btn');
+  const finalOutput = document.getElementById('final-output');
+  
   try {
+    // Clear previous results
+    finalOutput.textContent = 'Processing...';
+    processBtn.disabled = true;
+    processBtn.textContent = 'Running...';
+
+    // Make the API call
     const response = await fetch('/run-pipeline', {
       method: 'POST',
       headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       }
     });
 
-    // First check if response is JSON
-    const contentType = response.headers.get('content-type');
-    if (!contentType || !contentType.includes('application/json')) {
-      const text = await response.text();
-      throw new Error(`Server returned ${response.status}: ${text.slice(0, 100)}`);
-    }
-    if (response.ok) {
-    const data = await response.json();
-    displayResult(data);
-    } 
+    // Check if response is OK (status 200-299)
     if (!response.ok) {
-      throw new Error(data.error || `Pipeline failed (${response.status})`);
+      const errorText = await response.text();
+      throw new Error(`Server error: ${response.status} - ${errorText.slice(0, 100)}`);
     }
 
-    // Update UI
-    document.getElementById('step3-result').textContent = data.step3 || 'Step 3 completed';
-    await sleep(500);
-    document.getElementById('step4-result').textContent = data.step4 || 'Step 4 completed';
-    await sleep(500);
-    finalOutput.textContent = data.result || 'No result returned';
+    // Parse JSON only if response is OK
+    const data = await response.json();
+    
+    // Check if data exists and has expected structure
+    if (!data) {
+      throw new Error('No data received from server');
+    }
+
+    // Update UI based on response
+    if (data.error) {
+      finalOutput.textContent = `Error: ${data.error}`;
+    } else if (data.result) {
+      // Display the full dataframe
+      finalOutput.innerHTML = `
+        <div class="table-container">
+          ${data.result}
+        </div>
+        <div class="df-info">
+          Showing all data rows
+        </div>
+      `;
+    } else {
+      finalOutput.textContent = 'Unexpected response format';
+    }
 
   } catch (error) {
     console.error('Pipeline error:', error);
     finalOutput.textContent = `Error: ${error.message}`;
     
-    // Additional error logging
+    // Additional error details if available
     if (error.response) {
-      error.response.text().then(text => console.error('Full error:', text));
+      error.response.text().then(text => {
+        console.error('Full error:', text);
+      });
     }
   } finally {
     processBtn.disabled = false;
@@ -170,6 +186,7 @@ function sleep(ms) {
 if (processBtn) {
   processBtn.addEventListener('click', runPipeline);
 }
+
 
 
 
