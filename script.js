@@ -93,43 +93,32 @@ async function handleFileUpload(event) {
 async function runPipeline() {
   processBtn.disabled = true;
   processBtn.textContent = 'Processing...';
+  finalOutput.textContent = '';
 
   try {
     const response = await fetch('/run-pipeline', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({})
+      }
     });
 
-    if (!response.ok) {
-      // Get more detailed error message if available
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-    }
     const data = await response.json();
-
-    clearResults(data);
     
-    document.getElementById('step3-result').textContent = data.step3 || 'Processing...';
-    await sleep(300);
-    document.getElementById('step4-result').textContent = data.step4 || 'Processing...';
-
-    if (data.result) {
-      finalOutput.textContent = data.result;
-    } else if (data.error) {
-      finalOutput.textContent = `Error: ${data.error}`;
+    if (!response.ok) {
+      throw new Error(data.error || 'Pipeline failed');
     }
+
+    // Update UI step by step
+    document.getElementById('step3-result').textContent = data.step3;
+    await sleep(500);
+    document.getElementById('step4-result').textContent = data.step4;
+    await sleep(500);
+    finalOutput.textContent = data.result;
 
   } catch (error) {
     console.error('Pipeline error:', error);
     finalOutput.textContent = `Error: ${error.message}`;
-    
-    // Additional error logging
-    if (error.response) {
-      error.response.text().then(text => console.error('Server response:', text));
-    }
   } finally {
     processBtn.disabled = false;
     processBtn.textContent = 'Process Through Pipeline';
@@ -150,6 +139,7 @@ function sleep(ms) {
 if (processBtn) {
   processBtn.addEventListener('click', runPipeline);
 }
+
 
 
 
