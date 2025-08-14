@@ -89,7 +89,24 @@ async function handleFileUpload(event) {
     statusElement.className = 'upload-status error';
   }
 }
-
+function displayResult(data) {
+    const output = document.getElementById('final-output');
+    
+    if (data.type === 'dataframe') {
+        // For HTML tables
+        output.innerHTML = `
+            <div class="table-container">
+                ${data.result}
+            </div>
+            <div class="df-info">
+                Showing all ${data.result.split('<tr>').length - 2} rows
+            </div>
+        `;
+    } else {
+        // For regular text output
+        output.textContent = data.result;
+    }
+}
 async function runPipeline() {
   processBtn.disabled = true;
   processBtn.textContent = 'Processing...';
@@ -110,9 +127,10 @@ async function runPipeline() {
       const text = await response.text();
       throw new Error(`Server returned ${response.status}: ${text.slice(0, 100)}`);
     }
-
+    if (response.ok) {
     const data = await response.json();
-    
+    displayResult(data);
+    } 
     if (!response.ok) {
       throw new Error(data.error || `Pipeline failed (${response.status})`);
     }
@@ -152,6 +170,7 @@ function sleep(ms) {
 if (processBtn) {
   processBtn.addEventListener('click', runPipeline);
 }
+
 
 
 
