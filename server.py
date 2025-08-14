@@ -39,46 +39,59 @@ def upload_file():
 @app.route('/run-pipeline', methods=['POST'])
 def run_pipeline():
     try:
-        # 1. Verify required files exist
-        if not os.path.exists('test.ct') or not os.path.exists('test.dot'):
-            return jsonify({'error': 'Missing CT or DOT file'}), 400
+        # Verify files exist with absolute paths
+        ct_path = os.path.abspath('test.ct')
+        dot_path = os.path.abspath('test.dot')
+        
+        if not os.path.exists(ct_path) or not os.path.exists(dot_path):
+            return jsonify({
+                'error': 'Missing input files',
+                'details': {
+                    'ct_exists': os.path.exists(ct_path),
+                    'dot_exists': os.path.exists(dot_path)
+                }
+            }), 400
 
-        # 2. Run process3.py with the uploaded files
+        # Run process3.py
+        process3_path = os.path.abspath('process3.py')
         result3 = subprocess.run(
-            ["python3", "process3.py", "test.ct", "test.dot"],
+            ["python3", process3_path, ct_path, dot_path],
             capture_output=True,
-            text=True
+            text=True,
+            timeout=60
         )
         
         if result3.returncode != 0:
             return jsonify({
-                'error': f'Process3 failed: {result3.stderr}',
-                'step3': f'Failed: {result3.stderr[:200]}'
+                'error': 'Feature extraction failed',
+                'stderr': result3.stderr[:500],
+                'stdout': result3.stdout[:500]
             }), 500
-            
-        step3_result = "CT and DOT processing completed"
 
-        # 3. Run process4.py
+        # Run process4.py
+        process4_path = os.path.abspath('process4.py')
         result4 = subprocess.run(
-            ["python3", "process4.py"],
+            ["python3", process4_path],
             capture_output=True,
-            text=True
+            text=True,
+            timeout=60
         )
         
-        if result4.returncode != 0:
-            return jsonify({
-                'error': f'Process4 failed: {result4.stderr}',
-                'step4': f'Failed: {result4.stderr[:200]}'
-            }), 500
-            
         return jsonify({
-            'step3': step3_result,
-            'step4': "Prediction completed",
-            'result': result4.stdout.strip()
+            'step3': 'Feature extraction completed',
+            'step4': 'Prediction completed',
+            'result': result4.stdout.strip(),
+            'prediction_stderr': result4.stderr[:500] if result4.stderr else None
         })
 
+    except subprocess.TimeoutExpired:
+        return jsonify({'error': 'Pipeline timed out'}), 500
     except Exception as e:
-        return jsonify({'error': f'Pipeline error: {str(e)}'}), 500
+        return jsonify({
+            'error': 'Unexpected pipeline error',
+            'details': str(e)
+        }), 500
+
 
 
 
