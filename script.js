@@ -110,122 +110,78 @@ function displayResult(data) {
 async function runPipeline() {
   const processBtn = document.getElementById('process-btn');
   const finalOutput = document.getElementById('final-output');
-  const step2Result = document.getElementById('step2-result'); // Added reference to step 2 container
+  const step2Result = document.getElementById('step2-result');
 
   try {
-    // Clear previous results and set loading states
-    finalOutput.innerHTML = '<div class="loading-spinner"></div><p>Processing data...</p>';
-    step2Result.innerHTML = '<div class="status-loading">Starting pipeline analysis...</div>';
+    // Set loading states
+    finalOutput.innerHTML = '<div class="loading">Processing data...</div>';
+    step2Result.innerHTML = '<div class="status-loading">Starting analysis...</div>';
     processBtn.disabled = true;
     processBtn.textContent = 'Processing...';
 
-    // Make the API call with timeout
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
-
+    // API call with timeout protection
     const response = await fetch('/run-pipeline', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-      },
-      signal: controller.signal
+      }
     });
-
-    clearTimeout(timeoutId); // Clear timeout if request completes
 
     // Handle HTTP errors
     if (!response.ok) {
-      let errorDetails = '';
-      try {
-        const errorData = await response.json();
-        errorDetails = errorData.error || errorData.message || 'Unknown error';
-      } catch {
-        errorDetails = await response.text();
-      }
-      throw new Error(`Server responded with ${response.status}: ${errorDetails.slice(0, 200)}`);
+      const errorText = await response.text();
+      throw new Error(`Server error: ${response.status} - ${errorText.slice(0, 500)}`);
     }
 
     // Process successful response
     const data = await response.json();
     
-    // Validate response structure
-    if (!data || typeof data !== 'object') {
-      throw new Error('Invalid server response format');
+    if (!data) {
+      throw new Error('No data received from server');
     }
 
-    // Update UI based on response type
+    // Error case
     if (data.error) {
       step2Result.innerHTML = `
         <div class="status-error">
-          <h4>Pipeline Error</h4>
-          <p>${data.error}</p>
-          ${data.details ? `<pre class="error-details">${data.details}</pre>` : ''}
+          <p>Error: ${data.error}</p>
         </div>
       `;
-      finalOutput.textContent = 'Processing failed - see step 2 for details';
+      finalOutput.textContent = 'Processing failed';
     } 
+    // Success case
     else if (data.result) {
-      // Successful processing - update both step 2 and final output
       step2Result.innerHTML = `
         <div class="status-success">
-          <h4>Analysis Complete</h4>
-          <p>Successfully processed ${data.rowCount || 'all'} rows</p>
-          <p class="timestamp">Completed at ${new Date().toLocaleTimeString()}</p>
+          <p>Analysis completed successfully</p>
         </div>
       `;
-
-      // Enhanced table display with export options
+      
       finalOutput.innerHTML = `
-        <div class="output-controls">
-          <button class="export-btn" onclick="exportToCSV(this)">
-            <i class="fas fa-file-csv"></i> Export CSV
-          </button>
-          <button class="export-btn" onclick="exportToExcel(this)">
-            <i class="fas fa-file-excel"></i> Export Excel
-          </button>
-        </div>
-        <div class="table-container scrollable-table">
+        <div class="table-container">
           ${data.result}
         </div>
-        <div class="df-stats">
-          ${data.stats ? `<pre>${JSON.stringify(data.stats, null, 2)}</pre>` : ''}
+        <div class="df-info">
+          Showing all data rows
         </div>
       `;
     }
+    // Unexpected format
     else {
-      throw new Error('Response missing expected data fields');
+      throw new Error('Unexpected response format');
     }
 
   } catch (error) {
     console.error('Pipeline error:', error);
-    
-    // User-friendly error display
-    const errorMessage = error.name === 'AbortError' 
-      ? 'Request timed out (30s) - try with smaller dataset'
-      : error.message;
-
     step2Result.innerHTML = `
       <div class="status-error">
-        <h4>Pipeline Failed</h4>
-        <p>${errorMessage}</p>
-        <button class="retry-btn" onclick="runPipeline()">Retry</button>
+        <p>Error: ${error.message}</p>
       </div>
     `;
-    
-    finalOutput.innerHTML = `
-      <div class="error-display">
-        <i class="fas fa-exclamation-triangle"></i>
-        <p>${errorMessage}</p>
-        ${error.stack ? `<details><summary>Technical details</summary><pre>${error.stack}</pre></details>` : ''}
-      </div>
-    `;
-    
+    finalOutput.textContent = `Error: ${error.message}`;
   } finally {
     processBtn.disabled = false;
     processBtn.textContent = 'Run Pipeline Again';
-    // Add visual completion indicator
-    processBtn.classList.add('completed');
-    setTimeout(() => processBtn.classList.remove('completed'), 2000);
   }
 }
 
@@ -243,6 +199,7 @@ function sleep(ms) {
 if (processBtn) {
   processBtn.addEventListener('click', runPipeline);
 }
+
 
 
 
