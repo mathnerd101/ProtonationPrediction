@@ -70,18 +70,16 @@ def run_pipeline():
 
         # Run process4.py
         process4_path = os.path.abspath('process4.py')
-        result4 = subprocess.run(
-            ["python3", process4_path],
+         result4 = subprocess.run(
+            ["python3", "process4.py"],
             capture_output=True,
-            text=True,
-            timeout=60
+            text=True
         )
         
         return jsonify({
-            'step3': 'Feature extraction completed',
-            'step4': 'Prediction completed',
-            'result': result4.stdout.strip(),
-            'prediction_stderr': result4.stderr[:500] if result4.stderr else None
+            'status': 'success',
+            'result': result4.stdout,  
+            'type': 'dataframe'   
         })
 
     except subprocess.TimeoutExpired:
@@ -91,6 +89,7 @@ def run_pipeline():
             'error': 'Unexpected pipeline error',
             'details': str(e)
         }), 500
+
 
 
 
