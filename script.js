@@ -99,26 +99,39 @@ async function runPipeline() {
     const response = await fetch('/run-pipeline', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
       }
     });
+
+    // First check if response is JSON
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      const text = await response.text();
+      throw new Error(`Server returned ${response.status}: ${text.slice(0, 100)}`);
+    }
 
     const data = await response.json();
     
     if (!response.ok) {
-      throw new Error(data.error || 'Pipeline failed');
+      throw new Error(data.error || `Pipeline failed (${response.status})`);
     }
 
-    // Update UI step by step
-    document.getElementById('step3-result').textContent = data.step3;
+    // Update UI
+    document.getElementById('step3-result').textContent = data.step3 || 'Step 3 completed';
     await sleep(500);
-    document.getElementById('step4-result').textContent = data.step4;
+    document.getElementById('step4-result').textContent = data.step4 || 'Step 4 completed';
     await sleep(500);
-    finalOutput.textContent = data.result;
+    finalOutput.textContent = data.result || 'No result returned';
 
   } catch (error) {
     console.error('Pipeline error:', error);
     finalOutput.textContent = `Error: ${error.message}`;
+    
+    // Additional error logging
+    if (error.response) {
+      error.response.text().then(text => console.error('Full error:', text));
+    }
   } finally {
     processBtn.disabled = false;
     processBtn.textContent = 'Process Through Pipeline';
@@ -139,6 +152,7 @@ function sleep(ms) {
 if (processBtn) {
   processBtn.addEventListener('click', runPipeline);
 }
+
 
 
 
