@@ -18,7 +18,7 @@ predictions = {}
 
 # Predict using each individual model folder
 for model_name in model_names:
-    predictor = TabularPredictor.load(model_name)
+    predictor = TabularPredictor.load("NeuralNetTorch_r79_BAG_L1")
     raw_preds = predictor.predict(df)
     binary_preds = (raw_preds == 1).astype(int)  # Adjust if positive class is not 1
     predictions[model_name] = binary_preds
@@ -39,16 +39,5 @@ preds_df["ID"] = range(1, len(df) + 1)
 final_df = preds_df[["ID"] + model_names + ["Probability", "Prediction"]]
 
 # Save to CSV
-print(final_df)
-counts_per_row = preds_df[model_names].sum(axis=1)
-
-plt.figure(figsize=(10, 6))
-plt.bar(range(1, len(df) + 1), counts_per_row)
-plt.xlabel("Row Number (1 to n)")
-plt.ylabel("Number of Models Predicting TRUE")
-plt.title("Number of Models Predicting TRUE per Row")
-plt.tight_layout()
-plt.savefig(os.path.join("static", "histogram.png"))
-plt.show()
-
+final_df.to_csv("predictions.csv", index=False)
 
