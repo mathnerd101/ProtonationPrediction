@@ -48,6 +48,7 @@ plt.xlabel("Row Number (1 to n)")
 plt.ylabel("Number of Models Predicting TRUE")
 plt.title("Number of Models Predicting TRUE per Row")
 plt.tight_layout()
-plt.savefig("static/histogram.png")
+plt.savefig(os.path.join("static", "histogram.png"))
 plt.show()
+
 
