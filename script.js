@@ -89,99 +89,52 @@ async function handleFileUpload(event) {
     statusElement.className = 'upload-status error';
   }
 }
-function displayResult(data) {
-    const output = document.getElementById('final-output');
-    
-    if (data.type === 'dataframe') {
-        // For HTML tables
-        output.innerHTML = `
-            <div class="table-container">
-                ${data.result}
-            </div>
-            <div class="df-info">
-                Showing all ${data.result.split('<tr>').length - 2} rows
-            </div>
-        `;
-    } else {
-        // For regular text output
-        output.textContent = data.result;
-    }
-}
+
 async function runPipeline() {
-  const processBtn = document.getElementById('process-btn');
-  const finalOutput = document.getElementById('final-output');
-  const step2Result = document.getElementById('step2-result');
+  processBtn.disabled = true;
+  processBtn.textContent = 'Processing...';
+  finalOutput.textContent = '';
 
   try {
-    // Set loading states
-    finalOutput.innerHTML = '<div class="loading">Processing data...</div>';
-    step2Result.innerHTML = '<div class="status-loading">Starting analysis...</div>';
-    processBtn.disabled = true;
-    processBtn.textContent = 'Processing...';
-
-    // API call with timeout protection
     const response = await fetch('/run-pipeline', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
       }
     });
 
-    // Handle HTTP errors
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Server error: ${response.status} - ${errorText.slice(0, 500)}`);
+    // First check if response is JSON
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      const text = await response.text();
+      throw new Error(`Server returned ${response.status}: ${text.slice(0, 100)}`);
     }
 
-    // Process successful response
     const data = await response.json();
     
-    if (!data) {
-      throw new Error('No data received from server');
+    if (!response.ok) {
+      throw new Error(data.error || `Pipeline failed (${response.status})`);
     }
 
-    // Error case
-    if (data.error) {
-      step2Result.innerHTML = `
-        <div class="status-error">
-          <p>Error: ${data.error}</p>
-        </div>
-      `;
-      finalOutput.textContent = 'Processing failed';
-    } 
-    // Success case
-    else if (data.result) {
-      step2Result.innerHTML = `
-        <div class="status-success">
-          <p>Analysis completed successfully</p>
-        </div>
-      `;
-      
-      finalOutput.innerHTML = `
-        <div class="table-container">
-          ${data.result}
-        </div>
-        <div class="df-info">
-          Showing all data rows
-        </div>
-      `;
-    }
-    // Unexpected format
-    else {
-      throw new Error('Unexpected response format');
-    }
+    // Update UI
+    document.getElementById('step3-result').textContent = data.step3 || 'Step 3 completed';
+    await sleep(500);
+    document.getElementById('step4-result').textContent = data.step4 || 'Step 4 completed';
+    await sleep(500);
+    finalOutput.textContent = data.result || 'No result returned';
 
   } catch (error) {
     console.error('Pipeline error:', error);
-    step2Result.innerHTML = `
-      <div class="status-error">
-        <p>Error: ${error.message}</p>
-      </div>
-    `;
     finalOutput.textContent = `Error: ${error.message}`;
+    
+    // Additional error logging
+    if (error.response) {
+      error.response.text().then(text => console.error('Full error:', text));
+    }
   } finally {
     processBtn.disabled = false;
-    processBtn.textContent = 'Run Pipeline Again';
+    processBtn.textContent = 'Process Through Pipeline';
   }
 }
 
@@ -199,11 +152,6 @@ function sleep(ms) {
 if (processBtn) {
   processBtn.addEventListener('click', runPipeline);
 }
-
-
-
-
-
 
 
 
