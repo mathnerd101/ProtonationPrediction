@@ -232,4 +232,9 @@
     0% { background-position: 200% 0; }
     100% { background-position: -200% 0; }
   }
+h1 {
+  font-size: 1em; /* adjust until it fits */
+  white-space: nowrap; /* prevent wrapping */
+}
   
+
