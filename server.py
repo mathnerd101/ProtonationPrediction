@@ -10,7 +10,7 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 def index():
     return send_from_directory('.', 'index.html')
 
-@app.route('/static/<path:filename>')
+@app.route('/<path:filename>')
 def static_files(filename):
     return send_from_directory('.', filename)
 
@@ -92,10 +92,9 @@ def run_pipeline():
             'details': str(e)
         }), 500
 
-@app.route('/get_predictions')
-def get_predictions():
-    df = df_final
-    return jsonify(df.to_dict(orient="records"))
+
+
+
 
 
 
