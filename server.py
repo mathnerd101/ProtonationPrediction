@@ -92,6 +92,10 @@ def run_pipeline():
             'details': str(e)
         }), 500
 
+@app.route("/get_predictions")
+def get_predictions():
+    df = df_final
+    return df.to_json(orient="records")
 
 
 
