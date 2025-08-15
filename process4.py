@@ -40,16 +40,4 @@ final_df = preds_df[["ID"] + model_names + ["Probability", "Prediction"]]
 
 # Save to CSV
 final_df.to_csv("predictions.csv", index=False)
-def generate_results():
-
-    return final_df.to_html(
-        classes='dataframe',
-        border=0,
-        index=False,  # Hide index if not needed
-        max_rows=None  # Show all rows
-    )
-
-if __name__ == "__main__":
-    print(generate_results())
-
 
