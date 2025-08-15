@@ -153,6 +153,40 @@ if (processBtn) {
   processBtn.addEventListener('click', runPipeline);
 }
 
+async function loadResults() {
+  const res = await fetch('/get_predictions');
+  const data = await res.json();
+
+  // Build table
+  const container = document.getElementById('table-container');
+  container.innerHTML = '';
+  const table = document.createElement('table');
+
+  const headerRow = document.createElement('tr');
+  Object.keys(data[0]).forEach(col => {
+    const th = document.createElement('th');
+    th.textContent = col;
+    headerRow.appendChild(th);
+  });
+  table.appendChild(headerRow);
+
+  data.forEach(row => {
+    const tr = document.createElement('tr');
+    Object.values(row).forEach(val => {
+      const td = document.createElement('td');
+      td.textContent = val;
+      tr.appendChild(td);
+    });
+    table.appendChild(tr);
+  });
+
+  container.appendChild(table);
+
+  // Refresh histogram
+  document.getElementById('histogram').src = `/static/histogram.png?cachebuster=${Date.now()}`;
+}
+
+loadResults();
 
 
 
