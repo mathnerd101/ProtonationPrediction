@@ -97,9 +97,7 @@ def get_predictions():
     df = pd.read_csv("predictions.csv")
     return jsonify(df.to_dict(orient="records"))
 
-@app.route('/static/<path:filename>')
-def static_files(filename):
-    return send_from_directory('static', filename)
+
 
 
 
