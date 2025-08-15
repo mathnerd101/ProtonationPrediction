@@ -94,8 +94,9 @@ def run_pipeline():
 
 @app.route('/get_predictions')
 def get_predictions():
-    df = pd.read_csv("predictions.csv")
+    df = df_final
     return jsonify(df.to_dict(orient="records"))
+
 
 
 
