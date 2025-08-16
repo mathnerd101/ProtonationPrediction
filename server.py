@@ -94,8 +94,14 @@ def run_pipeline():
 
 @app.route("/get_predictions")
 def get_predictions():
-    df = df_final
+    import os
+    path = os.path.join(os.path.dirname(__file__), "predictions.csv")
+    if not os.path.exists(path):
+        return jsonify({"error": "No predictions found"}), 404
+
+    df = pd.read_csv(path)
     return df.to_json(orient="records")
+
 
 
 
