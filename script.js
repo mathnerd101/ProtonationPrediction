@@ -47,16 +47,10 @@ async function loadResults() {
 
     container.appendChild(table);
 
-    // Refresh histogram with cache buster
-    const histogram = document.getElementById('histogram');
-    if (histogram) {
-      histogram.src = `/static/histogram.png?cachebuster=${Date.now()}`;
-      histogram.onerror = function() {
-        this.style.display = 'none';
-      };
-    }
+
 
   } catch (error) {
     console.error('Error loading results:', error);
   }
 }
+
