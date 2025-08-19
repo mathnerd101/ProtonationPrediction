@@ -180,18 +180,15 @@
   }
   
   .result-box {
-  background: var(--toggle-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  padding: 10px;
-  min-height: 150px;          /* Increased height */
-  max-height: 400px;          /* Optional: limit to avoid huge page jumps */
-  font-family: monospace;
-  color: var(--text-color);
-  white-space: pre-wrap;      /* Keep newlines and wrap text */
-  word-break: break-word;     /* Break long strings */
-  overflow-y: auto;           /* Scroll if content is too tall */
-}
+    background: var(--toggle-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 10px;
+    min-height: 20px;
+    font-family: monospace;
+    color: var(--text-color);
+    word-break: break-all;
+  }
   
   .final-result {
     border: 2px solid #4CAF50;
@@ -206,20 +203,17 @@
   }
   
   .final-box {
-  background: var(--toggle-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  padding: 15px;
-  min-height: 200px;          /* Increased height */
-  max-height: 500px;          /* Optional: limit */
-  font-family: monospace;
-  color: var(--text-color);
-  font-size: 18px;
-  font-weight: bold;
-  white-space: pre-wrap;      /* Preserve formatting */
-  word-break: break-word;     /* Break long words */
-  overflow-y: auto;           /* Scroll if overflow */
-}
+    background: var(--toggle-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 15px;
+    min-height: 30px;
+    font-family: monospace;
+    color: var(--text-color);
+    font-size: 18px;
+    font-weight: bold;
+    word-break: break-all;
+  }
   
   .loading {
     opacity: 0.6;
@@ -232,10 +226,4 @@
     0% { background-position: 200% 0; }
     100% { background-position: -200% 0; }
   }
-h1 {
-  font-size: 1.5em; /* adjust until it fits */
-  white-space: nowrap; /* prevent wrapping */
-}
   
-
-
