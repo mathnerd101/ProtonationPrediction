@@ -1,8 +1,6 @@
 import pandas as pd
 from autogluon.tabular import TabularPredictor
 
-# Load your dataframe here
-# Load the AutoGluon predictor
 
 model_names = [
     "NeuralNetTorch_r79_BAG_L1",
@@ -34,4 +32,5 @@ preds_df["ID"] = range(1, len(df) + 1)
 preds_df = preds_df[["ID"] + model_names + ["Probability", "Prediction"]]
 
 preds_df.to_csv("predictions.csv", index=False)
+
 
