@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, send_from_directory
 import subprocess
 import os
+import pandas as pd  # Add this import
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
@@ -94,24 +95,16 @@ def run_pipeline():
 
 @app.route("/get_predictions")
 def get_predictions():
-    import os
     path = os.path.join(os.path.dirname(__file__), "predictions.csv")
     if not os.path.exists(path):
         return jsonify({"error": "No predictions found"}), 404
 
-    df = pd.read_csv(path)
-    return df.to_json(orient="records")
+    try:
+        df = pd.read_csv(path)
+        return df.to_json(orient="records")
+    except Exception as e:
+        return jsonify({"error": f"Error reading predictions: {str(e)}"}), 500
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+@app.route('/static/<path:filename>')
+def serve_static(filename):
+    return send_from_directory('static', filename)
