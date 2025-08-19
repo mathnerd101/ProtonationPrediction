@@ -53,12 +53,17 @@
   <div id="table-container"></div>
 
  <h2>Histogram</h2>
-<img id="histogram" src="/static/histogram.png" alt="Histogram" onerror="this.style.display='none';">
+<div id="histogram-placeholder" style="width:600px; height:400px; background:#eeeeee; display:flex; align-items:center; justify-content:center; color:#666666; border:1px solid #ccc;">
+</div>
+
+<!-- Keep the image but hide it initially -->
+<img id="histogram" src="/static/histogram.png" alt="Histogram" style="display:none;" onload="this.style.display='block'; document.getElementById('histogram-placeholder').style.display='none';">
 </div>
   </div>
   <script src="script.js"></script>
 </body>
 </html>
+
 
 
 
