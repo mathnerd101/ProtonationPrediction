@@ -45,6 +45,7 @@ final_df = preds_df[["ID"] + model_names + ["Probability", "Prediction"]]
 
 # Save to CSV
 final_df.to_csv("predictions.csv", index=False)
-
+print(final_df.to_string())
 print("Predictions saved to predictions.csv")
+
 
