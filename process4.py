@@ -2,7 +2,7 @@ import pandas as pd
 from autogluon.tabular import TabularPredictor
 
 # Load the processed data
-df = pd.read_csv("processed_features.csv")
+df = pd.read_csv("data.csv")
 
 # List of model folder names
 model_names = [
@@ -47,3 +47,4 @@ final_df = preds_df[["ID"] + model_names + ["Probability", "Prediction"]]
 final_df.to_csv("predictions.csv", index=False)
 
 print("Predictions saved to predictions.csv")
+
