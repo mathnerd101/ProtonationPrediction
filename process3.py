@@ -183,7 +183,7 @@ try:
 
     # Drop unnecessary columns
     df.drop(columns=['Unwanted', 'Index', 'Prev', 'Next', 'Pair', 'ID', 'Fold'], inplace=True)
-
+    df.to_csv('data.csv')
     # Display final DataFrame
     print(df)
 
@@ -195,6 +195,7 @@ except Exception as e:
     print("-"*60)
     traceback.print_exc()
     print("="*60)
+
 
 
 
