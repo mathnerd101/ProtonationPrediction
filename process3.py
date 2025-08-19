@@ -1,5 +1,7 @@
 import traceback
-
+import sys
+ct_filepath = sys.argv[1]
+dot_filepath = sys.argv[2]
 try:
     import pandas as pd
     import os
@@ -41,9 +43,6 @@ try:
                         return stripped
         return ""  # Return empty string if no structure line found or file doesn't exist
 
-    # Define the paths for the input .ct and .dot files
-    ct_filepath = "/content/test.ct"
-    dot_filepath = "/content/test.dot"
 
     # Process the .ct file
     df = parse_ct_file(ct_filepath)
@@ -196,6 +195,7 @@ except Exception as e:
     print("-"*60)
     traceback.print_exc()
     print("="*60)
+
 
 
 
