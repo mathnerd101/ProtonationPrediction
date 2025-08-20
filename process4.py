@@ -1,5 +1,6 @@
 import pandas as pd
 from autogluon.tabular import TabularPredictor
+predictor = TabularPredictor.load('/content/jasflsh')
 
 
 model_names = [
@@ -15,7 +16,6 @@ model_preds = {}
 
 
 for model in model_names:
-    predictor = TabularPredictor.load(model)
     preds = predictor.predict(df, model=model)
     preds_binary = (preds == True).astype(int)
     model_preds[model] = preds_binary
@@ -32,5 +32,6 @@ preds_df["ID"] = range(1, len(df) + 1)
 preds_df = preds_df[["ID"] + model_names + ["Probability", "Prediction"]]
 
 preds_df.to_csv("predictions.csv", index=False)
+
 
 
