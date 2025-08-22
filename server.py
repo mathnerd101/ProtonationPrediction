@@ -3,7 +3,7 @@ import subprocess
 import os
 import tempfile
 from werkzeug.utils import secure_filename
-app = Flask(name)
+app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 @app.route('/')
 def index():
@@ -70,5 +70,7 @@ def run_pipeline():
         return jsonify({'error': 'Pipeline timeout - process took too long'}), 500
     except Exception as e:
         return jsonify({'error': f'Pipeline error: {str(e)}'}), 500
-if name == 'main':
+if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
+
+
