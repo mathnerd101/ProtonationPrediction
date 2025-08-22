@@ -6,16 +6,19 @@ function updateToggleIcon(theme) {
   toggleBtn.textContent = theme === 'dark' ? '☀️' : '🌙';
 }
 
-// Set initial theme (removed localStorage usage for Claude.ai compatibility)
-let currentTheme = 'light';
-body.setAttribute('data-theme', currentTheme);
-updateToggleIcon(currentTheme);
+// Set initial theme
+const savedTheme = localStorage.getItem('theme') || 'light';
+body.setAttribute('data-theme', savedTheme);
+updateToggleIcon(savedTheme);
 
 // Toggle theme function
 function toggleTheme() {
-  currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
-  body.setAttribute('data-theme', currentTheme);
-  updateToggleIcon(currentTheme);
+  const currentTheme = body.getAttribute('data-theme');
+  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+  body.setAttribute('data-theme', newTheme);
+  localStorage.setItem('theme', newTheme);
+  updateToggleIcon(newTheme);
 }
 
 // Add click event listener to toggle button
@@ -26,12 +29,13 @@ if (toggleBtn) {
 // Optional: Listen for system theme changes
 if (window.matchMedia) {
   const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-  
-  // Set initial theme based on system preference
-  const systemTheme = mediaQuery.matches ? 'dark' : 'light';
-  currentTheme = systemTheme;
-  body.setAttribute('data-theme', currentTheme);
-  updateToggleIcon(currentTheme);
+
+  // Set initial theme based on system preference if no saved preference
+  if (!localStorage.getItem('theme')) {
+    const systemTheme = mediaQuery.matches ? 'dark' : 'light';
+    body.setAttribute('data-theme', systemTheme);
+    updateToggleIcon(systemTheme);
+  }
 }
 
 // Pipeline processing functionality
@@ -41,12 +45,6 @@ const ctFileInput = document.getElementById('ct-file');
 const dotFileInput = document.getElementById('dot-file');
 const ctStatus = document.getElementById('ct-status');
 const dotStatus = document.getElementById('dot-status');
-
-// Track upload status
-let filesUploaded = {
-  ct: false,
-  dot: false
-};
 
 // File upload handlers with null checks
 if (ctFileInput) {
@@ -59,7 +57,6 @@ if (dotFileInput) {
 async function handleFileUpload(event) {
   const file = event.target.files[0];
   const isCtFile = event.target.id === 'ct-file';
-  const fileType = isCtFile ? 'ct' : 'dot';
   const statusElement = isCtFile ? ctStatus : dotStatus;
 
   if (!statusElement) {
@@ -70,11 +67,105 @@ async function handleFileUpload(event) {
   if (!file) {
     statusElement.textContent = '';
     statusElement.className = 'upload-status';
-    filesUploaded[fileType] = false;
-    updateProcessButtonState();
     return;
   }
 
   // Validate file extension
-  const expectedExtension = `.${fileType}`;
-  if (!file.name.toLowerCase().endsWith
+  const expectedExtension = isCtFile ? '.ct' : '.dot';
+  if (!file.name.toLowerCase().endsWith(expectedExtension)) {
+    statusElement.textContent = `Invalid file type. Expected ${expectedExtension}`;
+    statusElement.className = 'upload-status error';
+    event.target.value = '';
+    return;
+  }
+
+  // Upload file
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('type', isCtFile ? 'ct' : 'dot');
+
+  try {
+    statusElement.textContent = 'Uploading...';
+    statusElement.className = 'upload-status';
+
+    const response = await fetch('/upload-file', {
+      method: 'POST',
+      body: formData
+    });
+
+    if (response.ok) {
+      statusElement.textContent = 'Uploaded successfully';
+      statusElement.className = 'upload-status success';
+    } else {
+      const error = await response.text();
+      statusElement.textContent = `Upload failed: ${error}`;
+      statusElement.className = 'upload-status error';
+    }
+  } catch (error) {
+    statusElement.textContent = `Upload error: ${error.message}`;
+    statusElement.className = 'upload-status error';
+  }
+}
+
+async function runPipeline() {
+
+  // Disable button and show loading
+  processBtn.disabled = true;
+  processBtn.textContent = 'Processing...';
+
+  // Clear previous results
+  clearResults();
+
+  try {
+    // Call the Python pipeline
+    const response = await fetch('/run-pipeline', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({})
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    // Update step results (only showing steps 3 and 4, renumbered as 1 and 2)
+    document.getElementById('step3-result').textContent = data.step3 || 'Processing...';
+    await sleep(300);
+
+    document.getElementById('step4-result').textContent = data.step4 || 'Processing...';
+
+    // Display final result
+    if (data.result) {
+      finalOutput.textContent = data.result;
+    } else if (data.error) {
+      finalOutput.textContent = `Error: ${data.error}`;
+    }
+
+  } catch (error) {
+    console.error('Pipeline error:', error);
+    finalOutput.textContent = `Error: ${error.message}`;
+  } finally {
+    // Re-enable button
+    processBtn.disabled = false;
+    processBtn.textContent = 'Process Through Pipeline';
+  }
+}
+
+function clearResults() {
+  document.getElementById('step3-result').textContent = '';
+  document.getElementById('step4-result').textContent = '';
+  finalOutput.textContent = '';
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// Add event listener to process button with null check
+if (processBtn) {
+  processBtn.addEventListener('click', runPipeline);
+}
