@@ -25,7 +25,9 @@ def make_prediction():
             print("Error: models directory not found")
             return None
             
-        predictor = TabularPredictor.load('models')
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        MODEL_DIR = os.path.join(BASE_DIR, "models")
+        predictor = TabularPredictor.load(MODEL_DIR)
         print("Model loaded successfully")
         
         # Define model names to use
@@ -114,3 +116,4 @@ if __name__ == "__main__":
     else:
         print("\nPrediction failed!")
         sys.exit(1)
+
