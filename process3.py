@@ -89,8 +89,8 @@ def process_files(ct_filepath, dot_filepath):
         # Calculate Cross columns based on 'Fold' and 'Fold_Letter'
         while forward <= backward:
             if df.loc[forward, 'Fold'] == '(' and df.loc[backward, 'Fold'] == ')' and forward > 2 and backward < len(df)-2:
-                df.loc[forward, 'Fold_Letter'] = 'M'
-                df.loc[backward, 'Fold_Letter'] = 'M'
+                df.loc[forward, 'Fold'] = 'M'
+                df.loc[backward, 'Fold'] = 'M'
                 df.loc[forward, 'CrossPlusOne'] = df['Base'][backward + 1] if backward + 1 < len(df) else 'N'
                 df.loc[forward, 'CrossMinusOne'] = df['Base'][backward - 1] if backward - 1 >= 0 else 'N'
                 df.loc[forward, 'CrossPlusTwo'] = df['Base'][backward + 2] if backward + 2 < len(df) else 'N'
@@ -122,7 +122,7 @@ def process_files(ct_filepath, dot_filepath):
                 df.loc[forward, 'CrossPlusThree'] = df['Base'][backward + 3] if backward + 3 < len(df) else 'N'
                 df.loc[forward, 'CrossMinusThree'] = df['Base'][backward - 3] if backward - 3 >= 0 else 'N'
                 forward += 1
-                df.loc[forward, 'Fold_Letter'] = 'A'
+                df.loc[forward, 'Fold'] = 'A'
             elif df.loc[forward, 'Fold'] == '(' and df.loc[backward, 'Fold'] == '.':
                 df.loc[forward, 'CrossPlusOne'] = df['Base'][backward + 1] if backward + 1 < len(df) else 'N'
                 df.loc[forward, 'CrossMinusOne'] = df['Base'][backward] if backward - 1 >= 0 else 'N'
@@ -138,7 +138,7 @@ def process_files(ct_filepath, dot_filepath):
                 df.loc[backward, 'CrossPlusThree'] = df['Base'][forward + 3] if forward + 3 < len(df) else 'N'
                 df.loc[backward, 'CrossMinusThree'] = df['Base'][forward - 3] if forward - 3 >= 0 else 'N'
                 backward -= 1
-                df.loc[backward, 'Fold_Letter'] = 'A'
+                df.loc[backward, 'Fold'] = 'A'
             elif df.loc[forward, 'Fold'] == '.' and df.loc[backward, 'Fold'] == '.':
                 if forward > last_open_bracket and backward < first_closed_bracket:
                     df.loc[forward, 'CrossPlusOne'] = 'N'
@@ -158,9 +158,9 @@ def process_files(ct_filepath, dot_filepath):
                     forward += 1
                     backward -= 1
                     if forward < len(df):
-                        df.loc[forward, 'Fold_Letter'] = 'L'
+                        df.loc[forward, 'Fold'] = 'L'
                     if backward >= 0:
-                        df.loc[backward, 'Fold_Letter'] = 'L'
+                        df.loc[backward, 'Fold'] = 'L'
                 else:
                     df.loc[forward, 'CrossPlusOne'] = df['Base'][backward + 1] if backward + 1 < len(df) else 'N'
                     df.loc[forward, 'CrossMinusOne'] = df['Base'][backward - 1] if backward - 1 >= 0 else 'N'
@@ -179,16 +179,16 @@ def process_files(ct_filepath, dot_filepath):
                 forward += 1
                 backward -= 1
                 if forward < len(df):
-                    df.loc[forward, 'Fold_Letter'] = 'S'
+                    df.loc[forward, 'Fold'] = 'S'
                 if backward >= 0:
-                    df.loc[backward, 'Fold_Letter'] = 'S'
+                    df.loc[backward, 'Fold'] = 'S'
             else:
                 # Handle cases where none of the above conditions are met, to avoid infinite loops
                 forward += 1
                 backward -= 1
 
         # Drop unnecessary columns
-        df.drop(columns=['Unwanted', 'Index', 'Prev', 'Next', 'Pair', 'ID', 'Fold'], inplace=True)
+        df.drop(columns=['Unwanted', 'Index', 'Prev', 'Next', 'Pair', 'ID', 'Fold_Letter'], inplace=True)
 
         # Save the processed DataFrame to CSV
         df.to_csv('processed_features.csv', index=False)
@@ -227,3 +227,4 @@ if __name__ == "__main__":
     else:
         print("Feature extraction failed")
         sys.exit(1)
+
