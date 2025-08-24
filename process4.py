@@ -49,7 +49,6 @@ def make_prediction():
         if not valid_models:
             # If no specific models found, use all available models
             valid_models = available_models
-            print(f"Using all available models: {valid_models}")
         else:
             print(f"Using specified models: {valid_models}")
         
@@ -116,4 +115,5 @@ if __name__ == "__main__":
     else:
         print("\nPrediction failed!")
         sys.exit(1)
+
 
