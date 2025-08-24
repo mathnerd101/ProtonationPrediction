@@ -36,7 +36,6 @@ def make_prediction():
             "NeuralNetTorch_BAG_L1", 
             "XGBoost_r33_BAG_L1",
             "CatBoost_BAG_L1",
-            "WeightedEnsemble_L2"
         ]
         
         # Get available models from the predictor
@@ -74,16 +73,12 @@ def make_prediction():
         
         # Calculate ensemble predictions
         preds_df["Probability"] = preds_df.sum(axis=1) / len(preds_df.columns)
-        
-        # Use majority voting for final prediction (>=50% of models predict positive)
-        threshold = len(preds_df.columns) / 2
-        preds_df["Prediction"] = (preds_df.sum(axis=1) >= threshold).astype(int)
-        
+                
         # Add sequence position ID
         preds_df["ID"] = range(1, len(df) + 1)
         
         # Reorder columns
-        column_order = ["ID"] + list(model_preds.keys()) + ["Probability", "Prediction"]
+        column_order = ["ID"] + list(model_preds.keys()) + ["Probability"]
         preds_df = preds_df[column_order]
         
         # Save predictions to CSV
@@ -91,7 +86,6 @@ def make_prediction():
         
         # Print summary
         total_positions = len(preds_df)
-        positive_predictions = sum(preds_df["Prediction"])
         avg_probability = preds_df["Probability"].mean()
         
         summary = f"""Prediction Summary:
@@ -115,5 +109,6 @@ if __name__ == "__main__":
     else:
         print("\nPrediction failed!")
         sys.exit(1)
+
 
 
