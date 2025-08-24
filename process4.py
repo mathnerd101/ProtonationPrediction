@@ -90,7 +90,6 @@ def make_prediction():
         
         summary = f"""Prediction Summary:
 Total positions analyzed: {total_positions}
-Positions predicted as protonated: {positive_predictions} ({positive_predictions/total_positions*100:.1f}%)
 Average probability: {avg_probability:.3f}
 Results saved to predictions.csv"""
         
@@ -109,6 +108,7 @@ if __name__ == "__main__":
     else:
         print("\nPrediction failed!")
         sys.exit(1)
+
 
 
 
